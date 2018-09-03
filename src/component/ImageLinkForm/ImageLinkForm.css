@@ -1,0 +1,7 @@
+.form {
+  width: 700px;
+  background-color: rgba(0,0,0,.7)
+}
+.form button {
+  border: none;
+}
