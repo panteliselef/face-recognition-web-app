@@ -12,6 +12,9 @@ import 'tachyons';
 import FaceRecognition from './component/FaceRecognition/FaceRecognition';
 
 
+//TODO: add Node.js API (server.js) to this project
+// https://medium.freecodecamp.org/how-to-make-create-react-app-work-with-a-node-backend-api-7c5c48acb1b0
+
 const particlesOptions = {
   particles: {
     number: {
@@ -36,8 +39,32 @@ class App extends Component {
       imageUrl: '',
       box: {},
       route: 'signin',
-      isSignedIn: false
+      isSignedIn: false,
+      currUser: {
+        id:"",
+        name:  "",
+        email: "",
+        entries: 0,
+        joined: ""
+      }
     }
+  }
+
+  componentDidMount() {
+    fetch('http://localhost:3000/')
+      .then(response => response.json())
+      .then(console.log)
+  }
+
+  loadUser = (data) => {
+    console.log("loadUser",data)
+    this.setState({currUser: {
+      id:data.id,
+      name: data.name,
+      email: data.email,
+      entries: data.entries,
+      joined: data.joined
+    }})
   }
 
 
@@ -81,7 +108,22 @@ class App extends Component {
       .predict(
         Clarifai.FACE_DETECT_MODEL, 
         this.state.input)
-      .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
+      .then(response => {
+        this.displayFaceBox(this.calculateFaceLocation(response));
+        if(response) {
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers : {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              id: this.state.currUser.id
+            })
+          })
+            .then(response => response.json())
+            .then(count => {
+              this.setState(Object.assign(this.state.currUser,{entries:count}));
+            })
+          }
+      })
       .catch(err => console.log(err))
   }
 
@@ -95,13 +137,13 @@ class App extends Component {
         {this.state.route === 'home'
           ? <React.Fragment>
               <Logo/>
-              <Rank/>
+              <Rank name={this.state.currUser.name} entries={this.state.currUser.entries}/>
               <ImageLinkForm onInputChange={this.onInputChange} onSubmit={this.onButtonSubmit}/>
             </React.Fragment>
           : (
               this.state.route === 'signin'
-              ? <SignIn onRouteChange={this.onRouteChange}/>
-              : <Register onRouteChange={this.onRouteChange}/>
+              ? <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
+              : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
             )
            
         }
