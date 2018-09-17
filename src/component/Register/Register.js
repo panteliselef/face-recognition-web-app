@@ -21,7 +21,8 @@ class Register extends React.Component {
     this.setState({registerPassword: event.target.value})
   }
 
-  onSubmitSignIn = () => {
+  onSubmitSignIn = (event) => {
+    event.preventDefault();
     fetch('http://localhost:3000/register', {
       method: 'post',
       headers: {'Content-Type':'application/json'},

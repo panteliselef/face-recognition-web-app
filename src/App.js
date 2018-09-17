@@ -6,7 +6,6 @@ import Logo from './component/Logo/Logo'
 import ImageLinkForm from './component/ImageLinkForm/ImageLinkForm'
 import Rank from './component/Rank/Rank'
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai';
 import './App.css';
 import 'tachyons';
 import FaceRecognition from './component/FaceRecognition/FaceRecognition';
@@ -27,33 +26,35 @@ const particlesOptions = {
   }
 }
 
-const clarifaiApp = new Clarifai.App({
-  apiKey: 'fcf0323c53af42719de1f3016eba2b21'
- });
 
+
+const initialState = {
+  input: '',
+  imageUrl: '',
+  box: {},
+  route: 'signin',
+  isSignedIn: false,
+  currUser: {
+    id:"",
+    name:  "",
+    email: "",
+    entries: 0,
+    joined: ""
+  }
+}
 class App extends Component {
   constructor() {
     super();
-    this.state = {
-      input: '',
-      imageUrl: '',
-      box: {},
-      route: 'signin',
-      isSignedIn: false,
-      currUser: {
-        id:"",
-        name:  "",
-        email: "",
-        entries: 0,
-        joined: ""
-      }
-    }
+    this.state = initialState;
   }
 
   componentDidMount() {
     fetch('http://localhost:3000/')
       .then(response => response.json())
       .then(console.log)
+  }
+  componentDidUpdate() {
+    console.log(this.state);
   }
 
   loadUser = (data) => {
@@ -93,7 +94,7 @@ class App extends Component {
   }
   onRouteChange = (route) => {
     if(route === 'signout') {
-      this.setState({isSignedIn: false});
+      this.setState(initialState);
     }else if (route === 'home') {
       this.setState({isSignedIn: true});
     }
@@ -104,10 +105,14 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input})
-    clarifaiApp.models
-      .predict(
-        Clarifai.FACE_DETECT_MODEL, 
-        this.state.input)
+    fetch('http://localhost:3000/imageurl', {
+      method: 'post',
+      headers : {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+      .then(response => response.json())
       .then(response => {
         this.displayFaceBox(this.calculateFaceLocation(response));
         if(response) {
@@ -122,6 +127,7 @@ class App extends Component {
             .then(count => {
               this.setState(Object.assign(this.state.currUser,{entries:count}));
             })
+            .catch(console.log)
           }
       })
       .catch(err => console.log(err))
@@ -139,15 +145,15 @@ class App extends Component {
               <Logo/>
               <Rank name={this.state.currUser.name} entries={this.state.currUser.entries}/>
               <ImageLinkForm onInputChange={this.onInputChange} onSubmit={this.onButtonSubmit}/>
+              <FaceRecognition box={this.state.box} imgUrl={this.state.imageUrl}/>
             </React.Fragment>
           : (
-              this.state.route === 'signin'
+              this.state.route === 'signin' || this.state.route === 'signout'
               ? <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
               : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
             )
            
         }
-        <FaceRecognition box={this.state.box} imgUrl={this.state.imageUrl}/>
       </div>
     );
   }
