@@ -3,6 +3,7 @@ import Navigation from './component/Navigation/Navigation'
 import SignIn from './component/SignIn/SignIn'
 import Register from './component/Register/Register'
 import Logo from './component/Logo/Logo'
+import Profile from './component/Profile/Profile'
 import ImageLinkForm from './component/ImageLinkForm/ImageLinkForm'
 import Rank from './component/Rank/Rank'
 import Particles from 'react-particles-js';
@@ -23,6 +24,20 @@ const particlesOptions = {
         value_area:500
       }
     }
+  }
+}
+const textStart = {
+  input: '',
+  imageUrl: '',
+  box: {},
+  route: 'home',
+  isSignedIn: true,
+  currUser: {
+    id:"1",
+    name:  "Pantelis",
+    email: "panteliselef@outlook.com",
+    entries: 0,
+    joined: "DATE HERE"
   }
 }
 
@@ -52,6 +67,7 @@ class App extends Component {
     fetch('http://localhost:3000/')
       .then(response => response.json())
       .then(console.log)
+      .catch(err => console.log("can't connect to db"))
   }
   componentDidUpdate() {
     console.log(this.state);
@@ -66,6 +82,13 @@ class App extends Component {
       entries: data.entries,
       joined: data.joined
     }})
+  }
+
+  loadUserName = (name) => {
+    console.log("loadUserName",name)
+    let newState = Object.assign({}, this.state);
+    newState.currUser.name = name;
+    this.setState(newState);
   }
 
 
@@ -135,11 +158,11 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
+      <div className="App" style={{color:"#fff"}}>
         <Particles className="particles"
-              params={particlesOptions}
+              params={particlesOptions} style={{color:"#000"}}
             />
-        <Navigation isSignedIn={this.state.isSignedIn} onRouteChange={this.onRouteChange}/>
+        <Navigation route={this.state.route} isSignedIn={this.state.isSignedIn} onRouteChange={this.onRouteChange}/>
         {this.state.route === 'home'
           ? <React.Fragment>
               <Logo/>
@@ -150,7 +173,11 @@ class App extends Component {
           : (
               this.state.route === 'signin' || this.state.route === 'signout'
               ? <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
+              : (
+                this.state.route === 'profile'
+              ? <Profile loadUserName={this.loadUserName} userInfo={this.state.currUser}/>
               : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
+              )
             )
            
         }

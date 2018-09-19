@@ -1,7 +1,19 @@
 .form {
-  width: 700px;
-  background-color: rgba(0,0,0,.7)
+  width: 500px;
 }
 .form button {
+  border: none;
+}
+.form input {
+  border-radius: 10px 0 0 10px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+}
+
+.form button {
+  border-radius: 0 10px 10px 0;
+  appearance: none;
+  -webkit-appearance: none;
   border: none;
 }
