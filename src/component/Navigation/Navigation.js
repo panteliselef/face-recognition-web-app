@@ -1,17 +1,34 @@
 import React from 'react';
 
-const Navigation = ({onRouteChange,isSignedIn}) => {
+const Navigation = ({onRouteChange,isSignedIn,route}) => {
 
+  console.log(route);
 
     if(isSignedIn) {
-      return (
-        <nav style={{display: 'flex',justifyContent:'flex-end'}}>
-          <p onClick={() => onRouteChange('signout')} className="f3 link dim black underline pa3 pointer">
-            Sign Out
-          </p>
-        </nav>
-
-      )
+      if(route == 'home') {
+        return (
+          <nav style={{display: 'flex',justifyContent:'flex-end'}}>
+            <p onClick={() => onRouteChange('profile')} className="f3 link dim black underline pa3 pointer">
+              Profile
+            </p>
+            <p onClick={() => onRouteChange('signout')} className="f3 link dim black underline pa3 pointer">
+              Sign Out
+            </p>
+          </nav>
+        )
+      }
+      else {
+        return (
+          <nav style={{display: 'flex',justifyContent:'flex-end'}}>
+            <p onClick={() => onRouteChange('home')} className="f3 link dim black underline pa3 pointer">
+              Home
+            </p>
+            <p onClick={() => onRouteChange('signout')} className="f3 link dim black underline pa3 pointer">
+              Sign Out
+            </p>
+          </nav>
+        )
+      }
     }else {
       return (
         <nav style={{display: 'flex',justifyContent:'flex-end'}}>
